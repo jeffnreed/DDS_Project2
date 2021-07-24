@@ -1,0 +1,587 @@
+---
+title: "DDS_Project2-JR"
+author: "JR"
+date: "7/12/2021"
+output: html_document
+---
+### Introduction: DDSAnalytics is an analytics company that has decades of experience and is a leading provide of talent management services for many Fortune 100 companies.  At the heart of success in companies is people and at the heart of DDSAnalytics is helping our clients succeed by not only recruiting and hiring the best talent available in the marketplace but also retaining and helping such employees flourish which in turn becomes a win-win for all.  As information technology capabilities continue to grow, DDSAnalytics is planning to leverage data science in order to improve their solutions for talent management. The executive leadership has identified predicting employee turnover as its first application of data science for talent management. Before implemnting these tools accross the firm, management has tasked your data science team to conduct an analysis of existing employee data.  As such, the following information details this research project. 
+
+### Link to YouTube presentation:
+### https://www.youtube.com/watch?v=Y3VLaIGCA50
+
+### Read in files 
+```{r}
+Case2 = read.csv("C:/Users/Team Reed/OneDrive/JEFF/SMU/Doing Data Science/Project 2/CaseStudy2-data-JR.csv",header = TRUE)
+head(Case2)
+```
+
+### Exploratory Data Analysis
+
+### Create graphs in order to assess relationship of Attrition with variables before researching further
+### Start with bar charts and use fill in order to see breakdown of Attrition within categories
+### Notable results worth researching further:  JobRole, JobInvolvement, WorkLifeBalance, Job Satisfaction
+``` {r}
+library(ggplot2)
+library(magrittr)
+library(ggthemes)
+ggplot(Case2, aes(x = Education, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Education Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = MaritalStatus, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Marital Status Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = Department, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Department Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = Gender, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Gender Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = JobRole, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Job Role Attrition Breakdown") + theme_economist() + theme(axis.text.x = element_text(angle = 90))
+ggplot(Case2, aes(x = BusinessTravel, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Business Travel Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = EducationField, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Education Field Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = JobInvolvement, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Job Involvement Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = JobLevel, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Job Level Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = EnvironmentSatisfaction, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Environment Satisfaction Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = JobSatisfaction, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Job Satisfaction Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = NumCompaniesWorked, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("# Companies Worked Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = OverTime, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Over Time Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = PerformanceRating, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Performance Rating Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = RelationshipSatisfaction, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Relationship Satisfaction Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = StockOptionLevel, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Stock Option Level Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = TrainingTimesLastYear, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Training # Last Year Attrition Breakdown") + theme_economist()
+ggplot(Case2, aes(x = WorkLifeBalance, fill = Attrition)) + geom_bar(position = "fill") + ggtitle("Work Life Balance Attrition Breakdown") + theme_economist()
+```
+### Calculate the percentages of Yes / No Attrition for each of the noted categorical variables above:  JobRole, JobInvolvement, WorkLifeBalance, JobSatisfaction
+### High attrition in JobRole:  Sales Reps (45%), Human Resources (29%), Laboratory Technicians (20%)
+### Job Involvement = 1 has had 47% attrition
+### Work Life Balance = 1 has had 35% attrition
+### Job Satisfaction = 1 has had 21% attrition
+
+``` {r}
+library(tidyverse)
+df1 = Case2 %>% select(Attrition, JobRole) 
+df2 = as.data.frame(apply(table(df1), 2, function(x) x/sum(x)))
+df2$Attrition = rownames(df2)
+print(df2)
+df1 = Case2 %>% select(Attrition, JobInvolvement) 
+df2 = as.data.frame(apply(table(df1), 2, function(x) x/sum(x)))
+df2$Attrition = rownames(df2)
+print(df2)
+df1 = Case2 %>% select(Attrition, WorkLifeBalance) 
+df2 = as.data.frame(apply(table(df1), 2, function(x) x/sum(x)))
+df2$Attrition = rownames(df2)
+print(df2)
+df1 = Case2 %>% select(Attrition, JobSatisfaction) 
+df2 = as.data.frame(apply(table(df1), 2, function(x) x/sum(x)))
+df2$Attrition = rownames(df2)
+print(df2)
+```
+
+### Next look at boxplots in order to assess distribution of continuous variables relative to Attrition
+### Notable results worth researching further:  MonthlyIncome, TotalWorkingYears, YearsInCurrentRole, JobSatisfaction, JobLevel
+``` {r}
+ggplot(data=Case2, mapping = aes(x = Attrition, y = Age)) + geom_boxplot() + ggtitle("Age Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = DailyRate)) + geom_boxplot() + ggtitle("Daily Rate Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = DistanceFromHome)) + geom_boxplot() + ggtitle("Distance From Home Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = HourlyRate)) + geom_boxplot() + ggtitle("Hourly Rate Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = MonthlyIncome)) + geom_boxplot() + ggtitle("Monthly Income Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = MonthlyRate)) + geom_boxplot() + ggtitle("Monthly Rate Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = NumCompaniesWorked)) + geom_boxplot() + ggtitle("# Companies Worked Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = RelationshipSatisfaction)) + geom_boxplot() + ggtitle("Relatiionship Satisfaction Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = StockOptionLevel)) + geom_boxplot() + ggtitle("Stock Option Level Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = TotalWorkingYears)) + geom_boxplot()+ ggtitle("Total Working Years Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = TrainingTimesLastYear)) + geom_boxplot() + ggtitle("Training # Last Year Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = WorkLifeBalance)) + geom_boxplot() + ggtitle("Work Life Balance Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = YearsAtCompany)) + geom_boxplot() + ggtitle("Years At Company Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = YearsInCurrentRole)) + geom_boxplot() + ggtitle("Years In Role Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = YearsSinceLastPromotion	)) + geom_boxplot() + ggtitle("Years Since Promotion Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = YearsWithCurrManager)) + geom_boxplot() + ggtitle("Years With Manager Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JobSatisfaction)) + geom_boxplot() + ggtitle("Job Satisfaction Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = EnvironmentSatisfaction)) + geom_boxplot() + ggtitle("Environment Satisfaction Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JobInvolvement)) + geom_boxplot() + ggtitle("Job Involvement Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JobLevel)) + geom_boxplot() + ggtitle("Job Level Attrition Boxplot") + theme_economist()
+```
+
+### Create combo variables in excel then graph additional boxplots
+```{r}
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JI_JL)) + geom_boxplot() + ggtitle("Job Involvement & Job Satisfaction COMBO Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JL_JS)) + geom_boxplot() + ggtitle("Job Level & Job Satisfaction COMBO Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JI_JL_JS)) + geom_boxplot() + ggtitle("Job Involvement & Job Satisfaction & Job Level COMBO Attrition Boxplot") + theme_economist()
+ggplot(data=Case2, mapping = aes(x = Attrition, y = JI_JL_JS_WLB)) + geom_boxplot() + ggtitle("Job Inv, Job Sat, Job Level & Work Life COMBO Boxplot") + theme_economist()
+```
+
+### Initial results from EDA:
+### Notable variables to analyze further:  JobRole, JobInvolvement, WorkLifeBalance, MonthlyIncome, TotalWorkingYears, YearsInCurrentRole, JobSatisfaction, JobLevel
+
+
+### Calculate correlation between categorical variables with Attrition with chi squared test:  JobRole, JobInvolvement, WorkLifeBalance, JobSatisfaction
+### All p-values are statistically significant though the lowest p-value / highest correlation with Attrition is the following from high to low:  JobInvolvement, JobRole, WorkLifeBalance, JobSatisfaction
+``` {r}
+dfJR = Case2[,c(3,17)]
+tblJR = table(dfJR$Attrition, dfJR$JobRole)
+tblJR
+chisqJR = chisq.test(tblJR)
+chisqJR
+
+dfJI = Case2[,c(3,15)]
+tblJI = table(dfJI$Attrition, dfJI$JobInvolvement)
+tblJI
+chisqJI = chisq.test(tblJI)
+chisqJI
+
+dfWL = Case2[,c(3,32)]
+tblWL = table(dfWL$Attrition, dfWL$WorkLifeBalance)
+tblWL
+chisqWL = chisq.test(tblWL)
+chisqWL
+
+dfJS = Case2[,c(3,18)]
+tblJS = table(dfJS$Attrition, dfJS$JobSatisfaction)
+tblJS
+chisqJS = chisq.test(tblJS)
+chisqJS
+
+```
+
+
+### Calculate correlation between continous variables with Attrition with pearson correlation
+### Highest correlation with Attrition (highest to lowest) = TotalWorkingYears, YearsInCurrentRole, MonthlyIncome, DistanceFromHome 
+``` {r}
+library(ltm)
+biserial.cor(Case2$DistanceFromHome, Case2$AttritionCat)
+biserial.cor(Case2$MonthlyIncome, Case2$AttritionCat)
+biserial.cor(Case2$TotalWorkingYears, Case2$AttritionCat)
+biserial.cor(Case2$YearsInCurrentRole, Case2$AttritionCat)
+```
+### Calculate correlation between notable continuous variables to test for lack of independence
+### High correlation between the following:  TotalWorkingYears & MonthlyIncome
+### Therefore when testing model be mindful of such interaction
+``` {r}
+df4 = Case2[,c(7,20,30,34)]
+summary(df4)
+corr = cor(df4)
+round(corr, 2)
+```
+
+
+### Calculate correlation between categorical variables to test for lack of independence with chi squared test:  JobRole, JobInvolvement, JobSatisfaction, WorkLifeBalance
+### All p-values are greater than alpha of 0.05 so we conclude that there is independence between these variables
+``` {r}
+dfJRJI = Case2[,c(15,17)]
+tblJRJI = table(dfJRJI$JobInvolvement, dfJR$JobRole)
+tblJRJI
+chisqJRJI = chisq.test(tblJRJI)
+chisqJRJI
+
+dfJIWL = Case2[,c(15,32)]
+tblJIWL = table(dfJIWL$JobInvolvement, dfJIWL$WorkLifeBalance)
+tblJIWL
+chisqJIWL = chisq.test(tblJIWL)
+chisqJIWL
+
+dfJRWL = Case2[,c(17,32)]
+tblJRWL = table(dfJRWL$JobRole, dfJRWL$WorkLifeBalance)
+tblJRWL
+chisqJRWL = chisq.test(tblJRWL)
+chisqJRWL
+
+dfJIJS = Case2[,c(15,18)]
+tblJIJS = table(dfJIJS$JobInvolvement, dfJIJS$JobSatisfaction)
+tblJIJS
+chisqJIJS = chisq.test(tblJIJS)
+chisqJIJS
+
+dfJRJS = Case2[,c(17,18)]
+tblJRJS = table(dfJRJS$JobRole, dfJRJS$JobSatisfaction)
+tblJRJS
+chisqJRJS = chisq.test(tblJRJS)
+chisqJRJS
+
+dfWLJS = Case2[,c(32,18)]
+tblWLJS = table(dfWLJS$WorkLifeBalance, dfWLJS$JobSatisfaction)
+tblWLJS
+chisqWLJS = chisq.test(tblWLJS)
+chisqWLJS
+
+
+```
+
+
+### Analyze data further to answer following questions to better understand breakdown of:
+
+### Which Job Roles have highest Job Involvement
+### Which Job Roles have highest Job Satisfaction
+ 
+
+### Summary notes before building prediction models:
+### Notable variables to analyze further:  JobRole, JobInvolvement, WorkLifeBalance, MonthlyIncome, TotalWorkingYears, YearsInCurrentRole, JobSatisfaction, JobLevel
+
+### High correlation between the following:  JobLevel & MonthlyIncome, JobLevel & TotalWorkingYears, TotalWorkingYears & MonthlyIncome
+### Therefore when testing model don't use the aforementioned pairs together
+
+### Highest continuous correlation with Attrition (highest to lowest) = TotalWorkingYears, JobLevel, YearsInCurrentRole, MonthlyIncome, JobSatisfaction, DistanceFromHome 
+###  Highest categorical correlation with Attrition is the following from high to low:  JobInvolvement, JobRole, WorkLifeBalance, JobSatisfaction
+
+### KNN Prediction Model
+### Had difficulty generating adequate Sensitivity and Specificity so tested multiple different combinations and also created new variables in order to further test for such improvements
+### New variables created = 
+### JI1 = Seperate Job Involvment = 1 from others (1 or 0)
+### JS1, JL1, WLB1 = JobSatisfaction, JobLevel and WorkLifeBalance based on same criteria
+### Then created several variables based on the number of iterations of the aforementioned variables that had one of them equal to 1.  Trying to consolidate analysis on these variables that appear to have correlation with Attrition.
+
+```{r}
+library(class)
+library(caret)
+library(e1071)
+
+set.seed(8)
+splitPerc = .7
+trainIndices = sample(1:dim(Case2)[1],round(splitPerc * dim(Case2)[1]))
+train = Case2[trainIndices,]
+test = Case2[-trainIndices,]
+
+# test iterations =  MonthlyIncome, JI_JL_JS
+classifications = knn(train[,c(30,55)],test[,c(30,55)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations =  MonthlyIncome, JI_JL_JS
+classifications = knn(train[,c(30,48)],test[,c(30,48)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobRole, MonthlyIncome, JobLevel
+classifications = knn(train[,c(38,40,15)],test[,c(38,40,15)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobRole, MonthlyIncome, JobInvolvement
+classifications = knn(train[,c(38,20,15)],test[,c(38,20,15)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobRole, TotalWorkingYears, JobInvolvement
+classifications = knn(train[,c(38,30,15)],test[,c(38,30,15)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobRole, WorkLifeBalance, JobInvolvement
+classifications = knn(train[,c(38,32,15)],test[,c(38,32,15)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobRole, MonthlyIncome
+classifications = knn(train[,c(38,20)],test[,c(38,20)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobInvolvement, JobSatisfaction, JobLevel
+classifications = knn(train[,c(15,18,16)],test[,c(15,18,16)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = JobLevel, Job Satisfaction
+classifications = knn(train[,c(16,18)],test[,c(16,18)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations = MonthlyIncome, Job Satisfaction
+classifications = knn(train[,c(20,45)],test[,c(20,45)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,test$Attrition))
+CM = confusionMatrix(table(classifications,test$Attrition))
+CM$overall[1]
+
+ggplot(data=Case2, mapping = aes(x = JI_JL_JS, y = MonthlyIncome, color = Attrition)) + geom_point() + ggtitle("Job Level Attrition Boxplot") + theme_economist()
+
+```
+
+
+### KNN attempt number 2 after narrowing down the sample set based on select variables of which one of them equals 1
+``` {r}
+library(class)
+library(caret)
+library(e1071)
+
+Case2_adj = Case2 %>% filter(JobInvolvement == 1 | JobLevel == 1 | JobSatisfaction == 1 | WorkLifeBalance == 1)
+
+
+set.seed(8)
+splitPerc = .7
+trainIndices = sample(1:dim(Case2_adj)[1],round(splitPerc * dim(Case2_adj)[1]))
+train = Case2_adj[trainIndices,]
+test = Case2_adj[-trainIndices,]
+
+# test iterations =  MonthlyIncome, JobRole
+classifications = knn(train[,c(20,38)],test[,c(20,38)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# test iterations =  MonthlyIncome, TotalWorkingYears
+classifications = knn(train[,c(20,30)],test[,c(20,30)],train$Attrition, prob = TRUE, k = 15)
+t = table(classifications,test$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(test$Attrition)))
+CM$overall[1]
+
+# internal cross validation test iterations =  MonthlyIncome, TotalWorkingYears
+classifications = knn.cv(Case2_adj[,c(20,30)],Case2_adj$Attrition, k = 15)
+t = table(classifications,Case2_adj$Attrition)
+t
+confusionMatrix(table(classifications,as.factor(Case2_adj$Attrition)))
+CM = confusionMatrix(table(classifications,as.factor(Case2_adj$Attrition)))
+CM$overall[1]
+```
+
+``` {r}
+library(class)
+library(caret)
+library(e1071)
+
+Case2_adj = Case2 %>% filter(JobInvolvement == 1 | JobLevel == 1 | JobSatisfaction == 1 | WorkLifeBalance == 1)
+
+iterations = 500
+numks = 30
+masterAcc = matrix(nrow = iterations, ncol = numks)
+  
+for(j in 1:iterations)
+{
+accs = data.frame(accuracy = numeric(30), k = numeric(30))
+trainIndices = sample(1:dim(Case2_adj)[1],round(splitPerc * dim(Case2_adj)[1]))
+train = Case2_adj[trainIndices,]
+test = Case2_adj[-trainIndices,]
+for(i in 1:numks)
+{
+  classifications = knn(train[,c(20,30)],test[,c(20,30)],train$Attrition, prob = TRUE, k = i)
+  table(classifications,test$Attrition)
+  CM = confusionMatrix(table(classifications,test$Attrition))
+  masterAcc[j,i] = CM$overall[1]
+}
+}
+MeanAcc = colMeans(masterAcc)
+plot(seq(1,numks,1),MeanAcc, type = "l")
+```
+
+### Repeat these two models with more iterations to determine best k amount to use
+### Based on the graph, k = 15 looks ideal as the accuracy is near the peak yet is mindful of cost of each k for client
+``` {r}
+
+set.seed(8)
+splitPerc = .7
+trainIndices = sample(1:dim(Case2)[1],round(splitPerc * dim(Case2)[1]))
+train = Case2[trainIndices,]
+test = Case2[-trainIndices,]
+
+iterations = 500
+numks = 30
+masterAcc = matrix(nrow = iterations, ncol = numks)
+  
+for(j in 1:iterations)
+{
+accs = data.frame(accuracy = numeric(30), k = numeric(30))
+trainIndices = sample(1:dim(Case2)[1],round(splitPerc * dim(Case2)[1]))
+train = Case2[trainIndices,]
+test = Case2[-trainIndices,]
+for(i in 1:numks)
+{
+  classifications = knn(train[,c(30,58)],test[,c(30,58)],train$Attrition, prob = TRUE, k = i)
+  table(classifications,test$Attrition)
+  CM = confusionMatrix(table(classifications,test$Attrition))
+  masterAcc[j,i] = CM$overall[1]
+}
+}
+MeanAcc = colMeans(masterAcc)
+plot(seq(1,numks,1),MeanAcc, type = "l")
+
+```
+
+### Unable to model data with sufficient efficacy using KNN so moved on to NaiveBayes
+``` {r}
+
+model = naiveBayes(Case2[,c(17,55)],Case2$Attrition,laplace = 1)
+table(predict(model,Case2[,c(17,55)]),Case2$Attrition)
+CM = confusionMatrix(table(predict(model,Case2[,c(17,55)]),Case2$Attrition))
+CM
+
+model = naiveBayes(Case2[,c(17,56)],Case2$Attrition,laplace = 1)
+table(predict(model,Case2[,c(17,56)]),Case2$Attrition)
+CM = confusionMatrix(table(predict(model,Case2[,c(17,56)]),Case2$Attrition))
+CM
+
+model = naiveBayes(Case2[,c(30,55)],Case2$Attrition,laplace = 1)
+table(predict(model,Case2[,c(30,55)]),Case2$Attrition)
+CM = confusionMatrix(table(predict(model,Case2[,c(30,55)]),Case2$Attrition))
+CM
+```
+
+### These last 2 were the best NB models I generated thus far
+``` {r}
+model = naiveBayes(Case2[,c(30,58)],Case2$Attrition,laplace = 1)
+table(predict(model,Case2[,c(30,58)]),Case2$Attrition)
+CM = confusionMatrix(table(predict(model,Case2[,c(30,58)]),Case2$Attrition))
+CM
+
+model = naiveBayes(Case2[,c(17,58)],Case2$Attrition,laplace = 1)
+table(predict(model,Case2[,c(17,58)]),Case2$Attrition)
+CM = confusionMatrix(table(predict(model,Case2[,c(17,58)]),Case2$Attrition))
+CM
+
+```
+
+
+### Repeat NB model with aforementioned adjustments above
+``` {r}
+Case2_adj = Case2 %>% filter(JobInvolvement == 1 | JobLevel == 1 | JobSatisfaction == 1 | WorkLifeBalance == 1)
+
+set.seed(8)
+splitPerc = .7
+trainIndices = sample(1:dim(Case2_adj)[1],round(splitPerc * dim(Case2_adj)[1]))
+train = Case2_adj[trainIndices,]
+test = Case2_adj[-trainIndices,]
+
+model = naiveBayes(Case2_adj[,c(30,58)],Case2_adj$Attrition,laplace = 1)
+table(predict(model,Case2_adj[,c(30,58)]),Case2_adj$Attrition)
+CM = confusionMatrix(table(predict(model,Case2_adj[,c(30,58)]),Case2_adj$Attrition))
+CM
+model
+
+### This was the highest I was able to get Specificity with my models so am going with this one
+### Build model then load select columns and write to csv
+model1 = naiveBayes(Case2_adj[,c(17,58)],Case2_adj$Attrition,laplace = 1)
+summary(model1)
+NBmodel = table(predict(model1,Case2_adj[,c(17,58)]),Case2_adj$Attrition)
+NBmodelPred = predict(model1, newdata = test)
+NBmodelPred
+NBM = as.data.frame(NBmodelPred)
+NBM
+test
+CM = confusionMatrix(table(predict(model1,Case2_adj[,c(17,58)]),Case2_adj$Attrition))
+CM
+
+IDdf = as.data.frame(test[,c(1)])
+IDdf
+
+PredNB = cbind(IDdf, NBM)
+PredNB
+colnames(PredNB) = c("ID", "Attrition")
+PredNB
+write.csv(PredNB,"C:/Users/Team Reed/OneDrive/JEFF/SMU/Doing Data Science/Project 2/Case2PredictionsReedAttrition.csv")
+
+```
+
+### Salary / MonthlyIncome Linear Regression Model
+
+###  Check all correlations then focus on correlation between the most notable MonthlyIncome and JobLevel, TotalWorkingYears, YearsAtCompany and Age
+### Key variables based on correlation = JobLevel,TotalWorkingYears
+``` {r}
+  df5 = Case2[,c(20,16,30,33,2)]
+  summary(df5)
+  corr = cor(df5)
+  round(corr, 2)
+```
+
+### Create linear regression model to forecast salary / MonthlyIncome
+### Start with plotting the models
+``` {r}
+set.seed(10)
+splitPerc = .7
+trainIndices = sample(1:dim(Case2)[1],round(splitPerc * dim(Case2)[1]))
+train = Case2[trainIndices,]
+test = Case2[-trainIndices,]
+
+### Simple Linear Regression between MonthlyIncome and TotalWorking Years
+fit1 <- lm(MonthlyIncome ~ TotalWorkingYears, data = train)
+summary(fit1)
+Case2 %>% ggplot(aes(x = MonthlyIncome, y = TotalWorkingYears)) + geom_point() + geom_smooth(method = "lm")
+hist(fit1$residuals, col = "blue", main = "Histogram of Residuals")
+plot(fit1$fitted.values,fit1$residuals, main = "Plot of Residuals v. Fitted Values")
+Model1_Preds = predict(fit1, newdata = test)
+as.data.frame(Model1_Preds)
+# Model 1
+MSPE = data.frame(Observed = test$MonthlyIncome, Predicted = Model1_Preds)
+MSPE$Residual = MSPE$Observed - MSPE$Predicted
+MSPE$SquaredResidual = MSPE$Residual^2
+MSPE
+mean(MSPE$SquaredResidual)
+
+
+### Simple Linear Regression between MonthlyIncome and JobLevel
+fit2 <- lm(MonthlyIncome ~ JobLevel, data = Case2)
+summary(fit2)
+Case2 %>% ggplot(aes(x = MonthlyIncome, y = JobLevel)) + geom_point() + geom_smooth(method = "lm")
+hist(fit2$residuals, col = "blue", main = "Histogram of Residuals")
+plot(fit2$fitted.values,fit2$residuals, main = "Plot of Residuals v. Fitted Values")
+Model2_Preds = predict(fit2, newdata = test)
+as.data.frame(Model2_Preds)
+# Model 2
+MSPE = data.frame(Observed = test$MonthlyIncome, Predicted = Model2_Preds)
+MSPE$Residual = MSPE$Observed - MSPE$Predicted
+MSPE$SquaredResidual = MSPE$Residual^2
+MSPE
+mean(MSPE$SquaredResidual)
+
+### Chosen model based on RMSE and visualization of assumptions
+### Multiple Linear Regression between MonthlyIncome and JobLevel + TotalWorkingYears
+fit3 <- lm(MonthlyIncome ~ JobLevel + TotalWorkingYears, data = Case2)
+summary(fit3)
+hist(fit3$residuals, col = "blue", main = "Histogram of Residuals")
+plot(fit3$fitted.values,fit3$residuals, main = "Plot of Residuals v. Fitted Values")
+Model3_Preds = predict(fit3, newdata = test)
+LRM = as.data.frame(Model3_Preds)
+LRM
+
+# Model 3 - run statistics and write to csv file
+MSPE = data.frame(Observed = test$MonthlyIncome, Predicted = Model3_Preds)
+MSPE$Residual = MSPE$Observed - MSPE$Predicted
+MSPE$SquaredResidual = MSPE$Residual^2
+MSPE
+mean(MSPE$SquaredResidual)
+
+PredJRLRM = cbind(rownames(LRM),LRM)
+rownames(PredJRLRM) = NULL
+colnames(PredJRLRM) = c("ID", "Predicted Salary")
+PredJRLRM
+write.csv(PredJRLRM,"C:/Users/Team Reed/OneDrive/JEFF/SMU/Doing Data Science/Project 2/Case2PredictionsReedSalary.csv")
+```
+
+### Executive Summary:  
+
+### Key Insights
+### Notable variables related to Attrition
+### Top 3  = Job Level, Job Involvement, Job Satisfaction
+### Any rating of 1 within these variables should be noted
+### Higher Total Working Years is also associated with less attrition
+### Sales Representatives, Human Resources, Lab Technicians have highest attrition
+### Notable variables related to Monthly Income / Salary
+
+### Recommendations
+### Employees that have a rating of 1 for notable variables and/or have minimal work experience
+### Proactively engage to “raise” rating / retain such employees
+### Recruit employees with more work experience
+### Especially for employees in the following roles: Sales Representatives, Human Resources, Lab Technicians
+### Include in survey ratings the option to include “why” behind their ratings to glean insight between different roles and departments
+### Note individual scores of 1 and seek to incorporate work interaction with others in their department with higher ratings on satisfaction, involvement and level.
